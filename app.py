@@ -14,42 +14,40 @@ def load_transcript(file_path):
     with open(file_path, "r") as file:
         return file.read()
 
-# Get answer from the QA model
+# Function to get answer from the QA model
 def get_answer(question, context, qa_pipeline):
     result = qa_pipeline(question=question, context=context)
     return result['answer']
+
+# Initialize session state variables for conversation history
+if "conversation" not in st.session_state:
+    st.session_state.conversation = []
 
 def main():
     # Load the QA model and transcript
     qa_pipeline = load_qa_pipeline()
     transcript_text = load_transcript("transcript.txt")
 
-    # Set up the Streamlit interface
+    # Set up the Streamlit chat-like interface
     st.title("Medical Chatbot")
-    st.write("Interact with the chatbot by asking questions about the patient's session with the doctor.")
-
-    # Initialize chat history
-    if "chat_history" not in st.session_state:
-        st.session_state.chat_history = []
+    st.write("Ask questions about the patient's session with the doctor below.")
 
     # Text input for the user's question
-    question = st.text_input("You:", key="user_input")
+    question = st.text_input("Your Question:", key="user_input")
 
-    if st.button("Send"):
-        if question:
-            # Get the answer from the model
-            answer = get_answer(question, transcript_text, qa_pipeline)
+    # If a question is entered
+    if st.button("Send") and question:
+        # Get the answer from the model
+        answer = get_answer(question, transcript_text, qa_pipeline)
+        
+        # Update the conversation history
+        st.session_state.conversation.append({"user": question, "bot": answer})
+        st.session_state.user_input = ""  # Clear the input field
 
-            # Update chat history
-            st.session_state.chat_history.append({"user": question, "bot": answer})
-
-            # Clear the input field
-            st.session_state.user_input = ""
-
-    # Display the chat history
-    for entry in st.session_state.chat_history:
-        st.markdown(f"**You:** {entry['user']}")
-        st.markdown(f"**Bot:** {entry['bot']}")
+    # Display the conversation history
+    for chat in st.session_state.conversation:
+        st.markdown(f"**You:** {chat['user']}")
+        st.markdown(f"**Bot:** {chat['bot']}\n")
 
 if __name__ == "__main__":
     main()
