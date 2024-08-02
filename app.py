@@ -14,40 +14,27 @@ def load_transcript(file_path):
     with open(file_path, "r") as file:
         return file.read()
 
-# Function to get answer from the QA model
+# Get answer from the QA model
 def get_answer(question, context, qa_pipeline):
     result = qa_pipeline(question=question, context=context)
     return result['answer']
-
-# Initialize session state variables for conversation history
-if "conversation" not in st.session_state:
-    st.session_state.conversation = []
 
 def main():
     # Load the QA model and transcript
     qa_pipeline = load_qa_pipeline()
     transcript_text = load_transcript("transcript.txt")
 
-    # Set up the Streamlit chat-like interface
+    # Set up the Streamlit interface
     st.title("Medical Chatbot")
-    st.write("Ask questions about the patient's session with the doctor below.")
+    st.write("Ask questions about the patient's session with the doctor.")
 
     # Text input for the user's question
-    question = st.text_input("Your Question:", key="user_input")
+    question = st.text_input("Enter your question here:")
 
-    # If a question is entered
-    if st.button("Send") and question:
-        # Get the answer from the model
+    if question:
+        # Get the answer and display it
         answer = get_answer(question, transcript_text, qa_pipeline)
-        
-        # Update the conversation history
-        st.session_state.conversation.append({"user": question, "bot": answer})
-        st.session_state.user_input = ""  # Clear the input field
-
-    # Display the conversation history
-    for chat in st.session_state.conversation:
-        st.markdown(f"**You:** {chat['user']}")
-        st.markdown(f"**Bot:** {chat['bot']}\n")
+        st.write("**Answer:**", answer)
 
 if __name__ == "__main__":
     main()
