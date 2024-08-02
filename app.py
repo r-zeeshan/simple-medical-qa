@@ -6,7 +6,7 @@ from transformers import pipeline
 # Load the pre-trained question answering pipeline
 @st.cache_resource
 def load_qa_pipeline():
-    return pipeline("question-answering", model="bert-large-uncased-whole-word-masking-finetuned-squad")
+    return pipeline("question-answering", model="deepset/roberta-base-squad2")
 
 # Load the transcript from a file
 @st.cache_data
