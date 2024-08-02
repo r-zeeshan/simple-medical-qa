@@ -26,15 +26,30 @@ def main():
 
     # Set up the Streamlit interface
     st.title("Medical Chatbot")
-    st.write("Ask questions about the patient's session with the doctor.")
+    st.write("Interact with the chatbot by asking questions about the patient's session with the doctor.")
+
+    # Initialize chat history
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
 
     # Text input for the user's question
-    question = st.text_input("Enter your question here:")
+    question = st.text_input("You:", key="user_input")
 
-    if question:
-        # Get the answer and display it
-        answer = get_answer(question, transcript_text, qa_pipeline)
-        st.write("**Answer:**", answer)
+    if st.button("Send"):
+        if question:
+            # Get the answer from the model
+            answer = get_answer(question, transcript_text, qa_pipeline)
+
+            # Update chat history
+            st.session_state.chat_history.append({"user": question, "bot": answer})
+
+            # Clear the input field
+            st.session_state.user_input = ""
+
+    # Display the chat history
+    for entry in st.session_state.chat_history:
+        st.markdown(f"**You:** {entry['user']}")
+        st.markdown(f"**Bot:** {entry['bot']}")
 
 if __name__ == "__main__":
     main()
